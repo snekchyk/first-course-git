@@ -1,0 +1,134 @@
+import express, {Request, Response} from 'express'
+import { RequestWithBody, RequestWithParams, RequestWithQuery, RequestWithParamsAndBody } from './types'
+import { CreateCourseModel } from './models/CreateCourseModel'
+import { ParamsIdCourseModel } from './models/ParamsIdCourseModel'
+import { QueryCourseModel } from './models/QueryCourseModel'
+import { ParseArgsConfig } from 'node:util'
+
+
+const app = express()
+const port = 3002
+
+const jsonBodyMiddleware = express.json()
+app.use(jsonBodyMiddleware)
+
+app.set('strict routing', false);
+
+const HTTP_STATUSES = {
+    OK_200: 200,
+    CREATED_201: 201,
+    NO_CONTENT_204: 204,
+
+
+
+    BAD_REQUEST_400: 400,
+    NOT_FOUND_404: 404
+}
+
+type courseType = {
+        id: number,
+        title: string
+}
+
+const db: {courses: courseType[]} = {
+    courses: [
+        {id: 1, title: 'front-end'},
+        {id: 2, title: 'back-end'},
+        {id: 3, title: 'devops'},
+        {id: 4, title: 'automation qa'}
+    ]
+}
+
+app.get('/courses', (req: RequestWithQuery<QueryCourseModel>, res: Response<courseType[]>) => {
+    let foundCourses = db.courses
+
+    console.log(req.query.title)
+    if (req.query.title) {
+        foundCourses = foundCourses
+            .filter(c => c.title.indexOf(req.query.title) > -1)
+    }
+
+    res.json(foundCourses)
+
+});
+
+app.get('/courses/:id', (req: RequestWithParams<ParamsIdCourseModel>, res: Response<courseType>) => {
+    const foundCourses = db.courses.find(c => c.id === req.params.id)
+
+    if (!foundCourses) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return
+    }
+    res.json(foundCourses)
+
+})
+
+app.post('/courses', (req: RequestWithBody<CreateCourseModel>, res: Response<courseType>) => {
+    if (!req.body.title) {
+        res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+        return;
+    }
+
+    const createCourse = {
+        id: +(new Date()),
+        title: req.body.title 
+    }
+
+    db.courses.push(createCourse)
+    console.log(db.courses)
+
+    res.status(HTTP_STATUSES.CREATED_201).json(createCourse)
+})
+
+app.delete('/courses/:id', (req: RequestWithParams<ParamsIdCourseModel>, res) => {
+    const a = db.courses.length
+
+    db.courses = db.courses.filter(c => c.id !== req.params.id)
+
+    const b = db.courses.length
+
+    if (a === b){
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return;
+    } else {
+        res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+        return;
+    }
+})
+
+app.put('/courses/:id', (req: RequestWithParamsAndBody<ParamsIdCourseModel, CreateCourseModel>, res) => {
+    if (!req.body.title) {
+        res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+        return;
+    }
+
+    const foundCourse = db.courses.find(c => c.id === req.params.id)
+
+    console.log(foundCourse)
+    if(!foundCourse) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return;
+    }
+
+    foundCourse.title = req.body.title
+
+    res.status(HTTP_STATUSES.NO_CONTENT_204)
+})
+
+app.delete('/clear', (req, res) => {
+    console.log('start delete data...')
+    console.log(db.courses)
+    db.courses = []
+    if(db.courses.length > 0) {
+        console.log('data not deleted, some error')
+        res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+        return;
+    }
+    res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+})
+
+
+
+app.listen(port, ()     => {
+    console.log('Server has started on port ' + port)
+})

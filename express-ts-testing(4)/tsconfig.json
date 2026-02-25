@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src", // Меняем на корень, чтобы видеть и src, и __tests__
+    "outDir": "./dist",
+
+    "module": "ESNext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    
+    // ИСПРАВЛЕНО: Добавляем типы Jest и Node
+    "types": ["jest", "node"], 
+
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    "strict": true,
+    "jsx": "react-jsx",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
