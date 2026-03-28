@@ -21,13 +21,12 @@ export const userService = {
         return usersRepository.createUser(newUser)
     },
     async checkCredentials(login: string, password: string): Promise<boolean> {
-        console.log(1 + password)
         const user = await usersRepository.findUserByLogin(login)
-        console.log(2 + user)
+
         if (!user) return false
-        console.log(3)
+
         const passwordHash = await this._hashingPassword(password, user.salt)
-        console.log(passwordHash)
+
         return user.hash === passwordHash
 
     },
