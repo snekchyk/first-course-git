@@ -1,0 +1,56 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Users {
+  id                  String            @id @default(uuid())
+  age                 Int
+  name                String
+  email               String            @unique
+  role                Role              @default(BASIC)
+  activation_status   Boolean           @default(false)
+  writtenPosts        Post[]            @relation("WrittenPosts")
+  favoritePosts       Post[]            @relation("FavoritePosts")
+  userPreference      UserPreference?   @relation(fields: [userPreferenceId], references: [id])
+  userPreferenceId    String?           @unique
+
+
+  @@unique([age, name])
+  @@index([email])
+}
+
+model UserPreference {
+  id                  String            @id @default(uuid())
+  emailUpdates        Boolean
+  user                Users?
+}
+
+model Post {
+  id                  String            @id @default(uuid())
+  title               String
+  rating              Float
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  author              Users             @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId            String
+  favoritedBy         Users?            @relation("FavoritePosts", fields: [favoritedById], references: [id])
+  favoritedById       String?
+  categories          Category[]
+}
+
+model Category {
+  id                  String            @id @default(uuid())
+  name                String            @unique
+  posts               Post[]
+}
+
+
+enum Role {
+  BASIC
+
+}
