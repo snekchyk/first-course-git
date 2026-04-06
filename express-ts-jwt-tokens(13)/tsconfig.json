@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    /* Strict Checks */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+
+    /* Interop Checks */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* Общие типы */
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*",
+    "src/types/index.d.ts"
+  ]
+}
